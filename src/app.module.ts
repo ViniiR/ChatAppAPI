@@ -3,6 +3,8 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
+import { SocketGateway } from './socket/socket.gateway';
+import { SocketModule } from './socket/socket.module';
 @Module({
     imports: [
         ConfigModule.forRoot(),
@@ -10,7 +12,8 @@ import { ConfigModule } from '@nestjs/config';
             dbName: process.env.DB_NAME,
         }),
         UsersModule,
+        SocketModule,
     ],
-    providers: [AppService],
+    providers: [AppService, SocketGateway],
 })
 export class AppModule {}
