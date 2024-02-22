@@ -3,7 +3,6 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
-import { SocketGateway } from './socket/socket.gateway';
 import { SocketModule } from './socket/socket.module';
 @Module({
     imports: [
@@ -14,6 +13,6 @@ import { SocketModule } from './socket/socket.module';
         UsersModule,
         SocketModule,
     ],
-    providers: [AppService, SocketGateway],
+    providers: [AppService],
 })
 export class AppModule {}

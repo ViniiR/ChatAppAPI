@@ -1,14 +1,17 @@
 import { Module } from '@nestjs/common';
-import { SocketGateway } from './socket.gateway';
-import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { SocketService } from './socket.service';
+import { Room, RoomSchema } from './schemas/room.schema';
+import { SocketGateway } from './socket.gateway';
 @Module({
-    providers: [SocketGateway],
-    // imports: [
-    //     ConfigModule.forRoot(),
-    //     MongooseModule.forRoot(process.env.SECRET_DATABASE_STRING, {
-    //         dbName: process.env.DB_NAME,
-    //     }),
-    // ],
+    imports: [
+        MongooseModule.forFeature([
+            {
+                name: Room.name,
+                schema: RoomSchema,
+            },
+        ]),
+    ],
+    providers: [SocketService, SocketGateway],
 })
 export class SocketModule {}

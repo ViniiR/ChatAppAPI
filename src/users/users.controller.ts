@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Delete,
     Get,
     HttpException,
     HttpStatus,
@@ -39,7 +40,7 @@ export class UsersController {
     ) {
         const isUser = await this.usersService.findUser(userInfo);
         if (!isUser) {
-            throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+            throw new HttpException('User not found', HttpStatus.FORBIDDEN);
         }
         const jwt = getJWTToken(userInfo.userName);
         if (!jwt) res.sendStatus(500);
@@ -80,14 +81,19 @@ export class UsersController {
     ) {
         const cookie = req.cookies['secret-access-token'];
         const { isValid, userName } = verifyJWT(cookie);
-        if (!isValid) return res.sendStatus(403);
-        if (!req.cookies || !cookie) return res.sendStatus(400);
+        if (!isValid) {
+            return res.sendStatus(403);
+        }
+        if (!req.cookies || !cookie) {
+            return res.sendStatus(400);
+        }
         const userExists = await this.usersService.userExists(userName);
         const contactExists = await this.usersService.userExists(
             contactDTO.userName,
         );
-        if (!userExists || !contactExists)
+        if (!userExists || !contactExists) {
             return res.status(400).send("user doesn't exist");
+        }
         const result = await this.usersService.addContact(
             userName,
             contactDTO.userName,
@@ -96,5 +102,34 @@ export class UsersController {
             return res.status(200).send('Friend added successfully');
         }
         return res.status(400).send('Friend already exists');
+    }
+
+    @Patch('remove-friend')
+    async methodName(
+        @Body() body: { name: string; userName: string },
+        @Res() res: Response,
+    ) {
+        if (!body.userName || !body.name) return res.sendStatus(400);
+        if (!(await this.usersService.userExists(body.userName))) {
+            return res.sendStatus(403);
+        }
+        return this.usersService.removeContact(body.userName, body.name, res);
+    }
+
+    @Delete('delete-user')
+    async deleteUser(
+        @Query('userName') userName: string,
+        @Res() res: Response,
+    ) {
+        return await this.usersService.deleteUser(userName, res);
+    }
+
+    @Delete('end-session')
+    endSession(@Res() res: Response) {
+        res.cookie('secret-access-token', '', {
+            httpOnly: true,
+            maxAge: 0,
+        });
+        res.sendStatus(204);
     }
 }
