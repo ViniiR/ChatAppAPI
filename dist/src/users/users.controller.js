@@ -39,8 +39,9 @@ let UsersController = class UsersController {
             res.sendStatus(500);
         res.cookie('secret-access-token', jwt, {
             httpOnly: true,
-            secure: false,
+            secure: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: 'none',
         });
         return res.sendStatus(200);
     }
@@ -95,9 +96,11 @@ let UsersController = class UsersController {
         return await this.usersService.deleteUser(userName, res);
     }
     endSession(res) {
-        res.cookie('secret-access-token', '', {
+        res.clearCookie('secret-access-token', {
             httpOnly: true,
-            maxAge: 0,
+            secure: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: 'none',
         });
         res.sendStatus(204);
     }
