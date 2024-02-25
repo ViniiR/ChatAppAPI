@@ -12,6 +12,7 @@ const mongoose_1 = require("@nestjs/mongoose");
 const socket_service_1 = require("./socket.service");
 const room_schema_1 = require("./schemas/room.schema");
 const socket_gateway_1 = require("./socket.gateway");
+const user_schema_1 = require("../schemas/user.schema");
 let SocketModule = class SocketModule {
 };
 exports.SocketModule = SocketModule;
@@ -22,6 +23,10 @@ exports.SocketModule = SocketModule = __decorate([
                 {
                     name: room_schema_1.Room.name,
                     schema: room_schema_1.RoomSchema,
+                },
+                {
+                    name: user_schema_1.User.name,
+                    schema: user_schema_1.UserSchema,
                 },
             ]),
         ],

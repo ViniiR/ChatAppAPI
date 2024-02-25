@@ -44,4 +44,8 @@ export declare class UsersService {
     }>;
     removeContact(removeFrom: string, userName: string, res: Response): Promise<Response<any, Record<string, any>>>;
     deleteUser(userName: string, res: Response): Promise<Response<any, Record<string, any>>>;
+    getStatus(userName: string): Promise<{
+        userName: string;
+        state: string;
+    }>;
 }

@@ -20,17 +20,14 @@ let SocketGateway = class SocketGateway {
     constructor(socketService) {
         this.socketService = socketService;
     }
-    handleMessage(data) {
+    async handleMessage(data) {
         const room = [data.owner, data.sentTo].sort().join('');
-        const date = new Date();
-        const currentTime = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-        const message = { ...data, timestamp: currentTime };
-        this.socketService.saveMessage({
-            owner: message.owner,
-            content: message.content,
-            timestamp: message.timestamp,
+        await this.socketService.saveMessage({
+            owner: data.owner,
+            content: data.content,
+            timestamp: data.currentTime,
         }, room);
-        this.server.to(room).emit('message', message);
+        this.server.to(room).emit('message', data);
     }
     async handleJoinRoom(client, data) {
         const room = [data.client1, data.client2].sort().join('');
@@ -41,6 +38,10 @@ let SocketGateway = class SocketGateway {
             const messages = await this.socketService.getMessagesFromRoom(room);
             this.server.to(room).emit('roomStoredMessages', messages);
         }
+    }
+    async updateUserState(body) {
+        this.server.emit('contactStateChange', body);
+        await this.socketService.updateUserState(body.name, body.state);
     }
 };
 exports.SocketGateway = SocketGateway;
@@ -53,7 +54,7 @@ __decorate([
     __param(0, (0, websockets_1.MessageBody)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], SocketGateway.prototype, "handleMessage", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('joinRoom'),
@@ -61,6 +62,13 @@ __decorate([
     __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
     __metadata("design:returntype", Promise)
 ], SocketGateway.prototype, "handleJoinRoom", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('updateUserState'),
+    __param(0, (0, websockets_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], SocketGateway.prototype, "updateUserState", null);
 exports.SocketGateway = SocketGateway = __decorate([
     (0, websockets_1.WebSocketGateway)({ cors: true, namespace: 'chat' }),
     __metadata("design:paramtypes", [socket_service_1.SocketService])

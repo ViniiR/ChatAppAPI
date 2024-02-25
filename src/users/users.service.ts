@@ -10,7 +10,7 @@ import { Response } from 'express';
 export class UsersService {
     constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-    createUser(createUserDTO: CreateUserDTO) {
+    async createUser(createUserDTO: CreateUserDTO) {
         const newUser = new this.userModel(createUserDTO);
         return newUser.save();
     }
@@ -61,6 +61,7 @@ export class UsersService {
         const isUser = await isHashValid(user.password, foundUser.password);
         return isUser;
     }
+
     async getUserInfo(userName: string) {
         const foundUser = await this.userModel
             .findOne({
@@ -76,6 +77,7 @@ export class UsersService {
             },
         };
     }
+
     async removeContact(
         removeFrom: string,
         userName: string,
@@ -109,5 +111,13 @@ export class UsersService {
                 HttpStatus.INTERNAL_SERVER_ERROR,
             );
         }
+    }
+
+    async getStatus(userName: string) {
+        const user = await this.userModel.findOne({ userName });
+        if (user) {
+            return { userName: user.userName, state: user.onlineState };
+        }
+        return null;
     }
 }

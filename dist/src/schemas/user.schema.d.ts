@@ -27,6 +27,7 @@ export declare class User {
     userName: string;
     password: string;
     contacts?: Array<string>;
+    onlineState?: string;
 }
 export declare class Contact {
     userName: string;

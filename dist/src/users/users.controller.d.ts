@@ -34,13 +34,14 @@ export declare class UsersController {
         _id: import("mongoose").Types.ObjectId;
     }>;
     loginUser(res: Response, userInfo: CreateUserDTO): Promise<Response<any, Record<string, any>>>;
-    authorization(req: Request, res: Response): Response<any, Record<string, any>>;
+    authorization(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
     info(req: Request, res: Response): Promise<Response<any, Record<string, any>> | 400>;
+    getFriendInfo(userName: string, res: Response): Promise<Response<any, Record<string, any>>>;
     addContact(contactDTO: ContactDTO, req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
     methodName(body: {
         name: string;
         userName: string;
     }, res: Response): Promise<Response<any, Record<string, any>>>;
     deleteUser(userName: string, res: Response): Promise<Response<any, Record<string, any>>>;
-    endSession(res: Response): void;
+    endSession(res: Response): Promise<void>;
 }

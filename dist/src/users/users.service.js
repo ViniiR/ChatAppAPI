@@ -22,7 +22,7 @@ let UsersService = class UsersService {
     constructor(userModel) {
         this.userModel = userModel;
     }
-    createUser(createUserDTO) {
+    async createUser(createUserDTO) {
         const newUser = new this.userModel(createUserDTO);
         return newUser.save();
     }
@@ -108,6 +108,13 @@ let UsersService = class UsersService {
         catch (err) {
             throw new common_1.HttpException('server error', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    async getStatus(userName) {
+        const user = await this.userModel.findOne({ userName });
+        if (user) {
+            return { userName: user.userName, state: user.onlineState };
+        }
+        return null;
     }
 };
 exports.UsersService = UsersService;

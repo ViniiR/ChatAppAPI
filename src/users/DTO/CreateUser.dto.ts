@@ -13,4 +13,6 @@ export class CreateUserDTO {
     password: string;
 
     contacts?: Array<string>;
+
+    onlineState?: string;
 }

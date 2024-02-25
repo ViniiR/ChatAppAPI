@@ -26,8 +26,9 @@ let UsersController = class UsersController {
         const hashedUser = {
             userName: createUserDTO.userName,
             password: await (0, hashing_1.hashString)(createUserDTO.password),
+            onlineState: 'Online',
         };
-        return this.usersService.createUser(hashedUser);
+        return await this.usersService.createUser(hashedUser);
     }
     async loginUser(res, userInfo) {
         const isUser = await this.usersService.findUser(userInfo);
@@ -45,7 +46,7 @@ let UsersController = class UsersController {
         });
         return res.sendStatus(200);
     }
-    authorization(req, res) {
+    async authorization(req, res) {
         const cookie = req.cookies['secret-access-token'];
         if (!req.cookies || !cookie)
             return res.sendStatus(400);
@@ -63,6 +64,18 @@ let UsersController = class UsersController {
         if (!isUser)
             return res.sendStatus(404);
         return res.status(200).send({ userInfo });
+    }
+    async getFriendInfo(userName, res) {
+        if (!userName) {
+            return res.sendStatus(400);
+        }
+        const isOnline = await this.usersService.getStatus(userName);
+        if (isOnline == null) {
+            return res.sendStatus(404);
+        }
+        return res
+            .status(200)
+            .send({ userName: isOnline.userName, state: isOnline.state });
     }
     async addContact(contactDTO, req, res) {
         const cookie = req.cookies['secret-access-token'];
@@ -95,7 +108,7 @@ let UsersController = class UsersController {
     async deleteUser(userName, res) {
         return await this.usersService.deleteUser(userName, res);
     }
-    endSession(res) {
+    async endSession(res) {
         res.clearCookie('secret-access-token', {
             httpOnly: true,
             secure: true,
@@ -128,7 +141,7 @@ __decorate([
     __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], UsersController.prototype, "authorization", null);
 __decorate([
     (0, common_1.Get)('info'),
@@ -138,6 +151,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "info", null);
+__decorate([
+    (0, common_1.Get)('friend-info'),
+    __param(0, (0, common_1.Query)('userName')),
+    __param(1, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getFriendInfo", null);
 __decorate([
     (0, common_1.Patch)('add-contact'),
     __param(0, (0, common_1.Body)()),
@@ -168,7 +189,7 @@ __decorate([
     __param(0, (0, common_1.Res)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], UsersController.prototype, "endSession", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),

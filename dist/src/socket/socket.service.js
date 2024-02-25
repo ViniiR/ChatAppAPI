@@ -17,9 +17,11 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const room_schema_1 = require("./schemas/room.schema");
 const mongoose_2 = require("mongoose");
+const user_schema_1 = require("../schemas/user.schema");
 let SocketService = class SocketService {
-    constructor(roomModel) {
+    constructor(roomModel, userModel) {
         this.roomModel = roomModel;
+        this.userModel = userModel;
     }
     async createRoom(roomName) {
         const room = await this.roomModel.findOne({ roomName });
@@ -52,11 +54,22 @@ let SocketService = class SocketService {
             throw new common_1.HttpException('Error', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    async updateUserState(userName, state) {
+        try {
+            await this.userModel.findOneAndUpdate({ userName }, { $set: { onlineState: state } }, { returnDocument: 'after', upsert: true });
+            return true;
+        }
+        catch (err) {
+            return false;
+        }
+    }
 };
 exports.SocketService = SocketService;
 exports.SocketService = SocketService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(room_schema_1.Room.name)),
-    __metadata("design:paramtypes", [mongoose_2.Model])
+    __param(1, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
+    __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model])
 ], SocketService);
 //# sourceMappingURL=socket.service.js.map

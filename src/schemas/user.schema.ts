@@ -11,6 +11,9 @@ export class User {
 
     @Prop({ required: false })
     contacts?: Array<string>;
+
+    @Prop({ required: false })
+    onlineState?: string;
 }
 
 @Schema()

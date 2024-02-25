@@ -13,27 +13,25 @@ export class SocketGateway {
     @WebSocketServer() server: Server;
 
     @SubscribeMessage('message')
-    handleMessage(
+    async handleMessage(
         @MessageBody()
         data: {
             owner: string;
             sentTo: string;
             content: string;
+            currentTime: string;
         },
     ) {
         const room = [data.owner, data.sentTo].sort().join('');
-        const date = new Date();
-        const currentTime = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-        const message = { ...data, timestamp: currentTime };
-        this.socketService.saveMessage(
+        await this.socketService.saveMessage(
             {
-                owner: message.owner,
-                content: message.content,
-                timestamp: message.timestamp,
+                owner: data.owner,
+                content: data.content,
+                timestamp: data.currentTime,
             },
             room,
         );
-        this.server.to(room).emit('message', message);
+        this.server.to(room).emit('message', data);
     }
 
     @SubscribeMessage('joinRoom')
@@ -49,5 +47,13 @@ export class SocketGateway {
             const messages = await this.socketService.getMessagesFromRoom(room);
             this.server.to(room).emit('roomStoredMessages', messages);
         }
+    }
+
+    @SubscribeMessage('updateUserState')
+    async updateUserState(
+        @MessageBody() body: { name: string; state: string; contact?: string },
+    ) {
+        this.server.emit('contactStateChange', body);
+        await this.socketService.updateUserState(body.name, body.state);
     }
 }

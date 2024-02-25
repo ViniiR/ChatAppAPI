@@ -8,9 +8,15 @@ export declare class SocketGateway {
         owner: string;
         sentTo: string;
         content: string;
-    }): void;
+        currentTime: string;
+    }): Promise<void>;
     handleJoinRoom(client: Socket, data: {
         client1: string;
         client2: string;
+    }): Promise<void>;
+    updateUserState(body: {
+        name: string;
+        state: string;
+        contact?: string;
     }): Promise<void>;
 }

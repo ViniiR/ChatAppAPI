@@ -2,10 +2,14 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Room } from './schemas/room.schema';
 import { Model } from 'mongoose';
+import { User } from 'src/schemas/user.schema';
 
 @Injectable()
 export class SocketService {
-    constructor(@InjectModel(Room.name) private roomModel: Model<Room>) {}
+    constructor(
+        @InjectModel(Room.name) private roomModel: Model<Room>,
+        @InjectModel(User.name) private userModel: Model<User>,
+    ) {}
 
     async createRoom(roomName: string) {
         const room = await this.roomModel.findOne({ roomName });
@@ -46,6 +50,19 @@ export class SocketService {
             await this.roomModel.findOneAndUpdate({ roomName }, { messages });
         } catch (error) {
             throw new HttpException('Error', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async updateUserState(userName: string, state: string) {
+        try {
+            await this.userModel.findOneAndUpdate(
+                { userName },
+                { $set: { onlineState: state } },
+                { returnDocument: 'after', upsert: true },
+            );
+            return true;
+        } catch (err) {
+            return false;
         }
     }
 }

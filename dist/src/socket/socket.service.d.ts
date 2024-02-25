@@ -24,9 +24,11 @@
 /// <reference types="mongoose/types/inferschematype" />
 import { Room } from './schemas/room.schema';
 import { Model } from 'mongoose';
+import { User } from 'src/schemas/user.schema';
 export declare class SocketService {
     private roomModel;
-    constructor(roomModel: Model<Room>);
+    private userModel;
+    constructor(roomModel: Model<Room>, userModel: Model<User>);
     createRoom(roomName: string): Promise<import("mongoose").Document<unknown, {}, Room> & Room & {
         _id: import("mongoose").Types.ObjectId;
     }>;
@@ -42,4 +44,5 @@ export declare class SocketService {
         owner: string;
         timestamp: string;
     }, roomName: string): Promise<void>;
+    updateUserState(userName: string, state: string): Promise<boolean>;
 }

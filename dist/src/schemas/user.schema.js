@@ -26,6 +26,10 @@ __decorate([
     (0, mongoose_1.Prop)({ required: false }),
     __metadata("design:type", Array)
 ], User.prototype, "contacts", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: false }),
+    __metadata("design:type", String)
+], User.prototype, "onlineState", void 0);
 exports.User = User = __decorate([
     (0, mongoose_1.Schema)()
 ], User);

@@ -29,8 +29,9 @@ export class UsersController {
         const hashedUser: CreateUserDTO = {
             userName: createUserDTO.userName,
             password: await hashString(createUserDTO.password),
+            onlineState: 'Online',
         };
-        return this.usersService.createUser(hashedUser);
+        return await this.usersService.createUser(hashedUser);
     }
 
     @Get('login')
@@ -54,7 +55,7 @@ export class UsersController {
     }
 
     @Get('authorization')
-    authorization(@Req() req: Request, @Res() res: Response) {
+    async authorization(@Req() req: Request, @Res() res: Response) {
         const cookie = req.cookies['secret-access-token'];
         if (!req.cookies || !cookie) return res.sendStatus(400);
         const { isValid, userName } = verifyJWT(cookie);
@@ -72,6 +73,23 @@ export class UsersController {
             await this.usersService.getUserInfo(userName);
         if (!isUser) return res.sendStatus(404);
         return res.status(200).send({ userInfo });
+    }
+
+    @Get('friend-info')
+    async getFriendInfo(
+        @Query('userName') userName: string,
+        @Res() res: Response,
+    ) {
+        if (!userName) {
+            return res.sendStatus(400);
+        }
+        const isOnline = await this.usersService.getStatus(userName);
+        if (isOnline == null) {
+            return res.sendStatus(404);
+        }
+        return res
+            .status(200)
+            .send({ userName: isOnline.userName, state: isOnline.state });
     }
 
     @Patch('add-contact')
@@ -126,7 +144,7 @@ export class UsersController {
     }
 
     @Delete('end-session')
-    endSession(@Res() res: Response) {
+    async endSession(@Res() res: Response) {
         res.clearCookie('secret-access-token', {
             httpOnly: true,
             secure: true,
